@@ -80,6 +80,7 @@ fig.savefig('data/BB_LINE_AVG_TEMP.pdf')
 ax = final_df.plot.bar(secondary_y='BA_AVG')
 ax.set_title('BA_BB monthly temperatures')
 ax.set_ylabel("Temperature in °C")
+fig = ax.get_figure()
 fig.savefig('data/BA_BB_AVG_TEMP.pdf')
 
 plt.show()
