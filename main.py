@@ -30,6 +30,8 @@ data_sum = pd.DataFrame(BA_data["Date"])
 data_sum["BA_AVG"] = pd.DataFrame(BA_data["Avg"].apply(lambda x: float(x[:-3])))
 data_sum["BB_AVG"] = pd.DataFrame(BB_data["Avg"].apply(lambda x: float(x[:-3])))
 
+print(data_sum)
+
 ### IF DB IS NOT EMPTY - FILL DATA FROM DATAFRAME
 if not Temp.query.first():
     for index, row in data_sum.iterrows():
@@ -80,7 +82,15 @@ fig.savefig('data/BB_LINE_AVG_TEMP.pdf')
 ax = final_df.plot.bar(secondary_y='BA_AVG')
 ax.set_title('BA_BB monthly temperatures')
 ax.set_ylabel("Temperature in °C")
+fig = ax.get_figure()
 fig.savefig('data/BA_BB_AVG_TEMP.pdf')
+
+### PLOT LINE GRAPH FOR BB
+ax = final_df.plot.line(secondary_y='BA_AVG')
+ax.set_title('BB monthly temperatures')
+ax.set_ylabel("Temperature in °C")
+fig = ax.get_figure()
+fig.savefig('data/BB_LINE_AVG_TEMP.pdf')
 
 plt.show()
 
