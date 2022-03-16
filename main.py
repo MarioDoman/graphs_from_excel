@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os.path
@@ -27,7 +26,7 @@ BA_data = pd.read_excel("data/BA_TEMP_02_2022.ods")
 BB_data = pd.read_excel("data/BB_TEMP_02_2022.ods")
 
 ### CREATE ONE DATAFRAME FROM 2 EXCEL FILES ###
-data_sum = pd.DataFrame(BA_data["Date"].apply(lambda x: x.date().strftime('%m-%d')))
+data_sum = pd.DataFrame(BA_data["Date"])
 data_sum["BA_AVG"] = pd.DataFrame(BA_data["Avg"].apply(lambda x: float(x[:-3])))
 data_sum["BB_AVG"] = pd.DataFrame(BB_data["Avg"].apply(lambda x: float(x[:-3])))
 
@@ -41,15 +40,22 @@ if not Temp.query.first():
 ### GET DATA FROM DB
 graph_data = Temp.query.all()
 
+# ### CONVERT graph_data BACK TO PANDAS DF ###
+final_df = pd.DataFrame()
+
+for item in graph_data:
+    new_row = {'Date': item.date.date().strftime('%m-%d') , 'BA_AVG': item.ba_avg, 'BB_AVG': item.bb_avg}
+    final_df = final_df.append(new_row, ignore_index = True)
+
 ### PLOT BAR GRAPH FOR BA
-ax = data_sum.plot.bar(x='Date', y='BA_AVG')
+ax = final_df.plot.bar(x='Date', y='BA_AVG')
 ax.set_title('BA monthly temperatures')
 ax.set_ylabel("Temperature in °C")
 fig = ax.get_figure()
 fig.savefig('data/BA_AVG_TEMP.pdf')
 
 ### PLOT BAR GRAPH FOR BB
-ax = data_sum.plot.bar(x='Date', y='BB_AVG')
+ax = final_df.plot.bar(x='Date', y='BB_AVG')
 ax.set_title('BB monthly temperatures')
 ax.set_ylabel("Temperature in °C")
 fig = ax.get_figure()
@@ -57,21 +63,21 @@ fig.savefig('data/BB_AVG_TEMP.pdf')
 
 
 ### PLOT LINE GRAPH FOR BA
-ax = data_sum.plot.line(x='Date', y='BA_AVG')
+ax = final_df.plot.line(x='Date', y='BA_AVG')
 ax.set_title('BA monthly temperatures')
 ax.set_ylabel("Temperature in °C")
 fig = ax.get_figure()
 fig.savefig('data/BA_LINE_AVG_TEMP.pdf')
 
 ### PLOT LINE GRAPH FOR BB
-ax = data_sum.plot.line(x='Date', y='BB_AVG')
+ax = final_df.plot.line(x='Date', y='BB_AVG')
 ax.set_title('BB monthly temperatures')
 ax.set_ylabel("Temperature in °C")
 fig = ax.get_figure()
 fig.savefig('data/BB_LINE_AVG_TEMP.pdf')
 
 ### PLOT BAR GRAPH FOR BA AND BB
-ax = data_sum.plot.bar(secondary_y='BA_AVG')
+ax = final_df.plot.bar(secondary_y='BA_AVG')
 ax.set_title('BA_BB monthly temperatures')
 ax.set_ylabel("Temperature in °C")
 fig.savefig('data/BA_BB_AVG_TEMP.pdf')
